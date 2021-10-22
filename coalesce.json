@@ -1,0 +1,16 @@
+{
+  "webProject": {
+    "projectFile": "./SocialSite.Web/SocialSite.Web.csproj"
+  },
+  "dataProject": {
+    "projectFile": "./SocialSite.Data/SocialSite.Data.csproj"
+  },
+
+  "rootGenerator": "Vue",
+
+  "generatorConfig": {
+    "Scripts": {
+      "targetDirectory": "../src"
+    }
+  }
+}
