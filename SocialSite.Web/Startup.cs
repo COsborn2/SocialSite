@@ -14,6 +14,7 @@ using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
+using System.Reflection;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -74,21 +75,6 @@ namespace SocialSite.Web
                     ConfigFile = "webpack.config.aspnetcore-hmr.js",
                 });
 #pragma warning restore CS0618 // Type or member is obsolete
-
-
-                // TODO: Dummy authentication for initial development.
-                // Replace this with ASP.NET Core Identity, Windows Authentication, or some other auth scheme.
-                // This exists only because Coalesce restricts all generated pages and API to only logged in users by default.
-                app.Use(async (context, next) =>
-                {
-                    Claim[] claims = new[] { new Claim(ClaimTypes.Name, "developmentuser") };
-
-                    var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                    await context.SignInAsync(context.User = new ClaimsPrincipal(identity));
-
-                    await next.Invoke();
-                });
-                // End Dummy Authentication.
             }
 
             // Routing
