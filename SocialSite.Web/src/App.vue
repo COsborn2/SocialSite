@@ -2,7 +2,7 @@
   <v-app id="vue-app">
     <v-main>
       <v-container style="max-width: 600px">
-        <v-text-field v-model="messages.$params.search" :loading="this.users.getUsersOnPage.isLoading || this.messages.$load.isLoading"></v-text-field>
+        <v-text-field v-model="messages.$params.search" :loading="contentLoading"></v-text-field>
 
         <div style="display: flex; justify-content: center">
           <v-chip style="margin: 5px 5px" close>Test</v-chip>
@@ -19,15 +19,16 @@
         </div>
       </v-container>
       <v-container style="display: flex; flex-wrap: wrap; justify-content: center">
-        <!-- TODO: Add skeleton loaders -->
-        <div v-for="message in messages.$items" style="margin: 10px 10px">
-<!--          <MessageCard-->
-<!--                       :id="message.originalId" :text="message.text" :date="getDateFormat(message.createdAt)"-->
-<!--                       :likes="message.favorites" :shares="message.shares" :user-name="message.screenName"-->
-<!--                       :profile-picture-link="getProfilePicture(message.screenName)"-->
-<!--                       style="min-height: 0; overflow: hidden"-->
-<!--          />-->
-          <v-skeleton-loader type="card-avatar, article, actions" />
+        <div v-for="message in messages.$items" style="margin: 10px 10px" v-if="!contentLoading">
+          <MessageCard
+                       :id="message.originalId" :text="message.text" :date="getDateFormat(message.createdAt)"
+                       :likes="message.favorites" :shares="message.shares" :user-name="message.screenName"
+                       :profile-picture-link="getProfilePicture(message.screenName)"
+                       style="min-height: 0; overflow: hidden"
+          />
+        </div>
+        <div style="margin: 10px 10px" v-for="cur in getArrayOfSize(30)" v-else>
+          <v-skeleton-loader style="width: 400px" type="table-heading, article, list-item-avatar" />
         </div>
 
         <div style="width: 100%; display: flex; justify-content: center; margin-bottom: 100px">
@@ -56,11 +57,20 @@ export default class App extends Vue {
 
   @Watch('messages.$page')
   @Watch('messages.$params.search')
-  async pageChanged() {
+  pageChanged() {
     window.scrollTo({ top: 0, behavior: 'smooth'});
-    await this.messages.$load();
-    let arr: string[] = this.messages.$items.filter(x => x?.screenName !== null).map(x => x.screenName).filter((value, index, array) => array.indexOf(value) === index) as string[];
-    await this.users.getUsersOnPage(arr);
+    this.messages.$load().then(_ => {
+      let arr: string[] = this.messages.$items.filter(x => x?.screenName !== null).map(x => x.screenName).filter((value, index, array) => array.indexOf(value) === index) as string[];
+      this.users.getUsersOnPage(arr);
+    });
+  }
+
+  get contentLoading(): boolean {
+    return this.users.getUsersOnPage.isLoading || this.messages.$load.isLoading;
+  }
+
+  getArrayOfSize(len: number): number[] {
+    return Array.from(Array(len)).map((v, i) => i);
   }
 
   getProfilePicture(screenName: string): string {
