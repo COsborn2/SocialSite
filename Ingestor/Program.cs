@@ -56,8 +56,13 @@ namespace Ingestor
                 .AddJsonFile("appsettings.connectionstrings.json")
                 .Build();
             var dbContextOptions = new DbContextOptionsBuilder<AppDbContext>();
-            var res = dbContextOptions
-                .UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+
+            var connectionToUse = Environment.OSVersion.Platform == PlatformID.Unix 
+                ? "DockerDbConnection"
+                : "DefaultConnection";
+            var connectionString = configuration.GetConnectionString(connectionToUse);
+            
+            var res = dbContextOptions.UseSqlServer(connectionString);
 
             using var context = new AppDbContext(res.Options);
 
