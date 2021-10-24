@@ -13,7 +13,7 @@ export const Message = domain.types.Message = {
   type: "model",
   controllerRoute: "Message",
   get keyProp() { return this.props.messageId }, 
-  behaviorFlags: 7,
+  behaviorFlags: 0,
   props: {
     messageId: {
       name: "messageId",
@@ -87,7 +87,7 @@ export const User = domain.types.User = {
   type: "model",
   controllerRoute: "User",
   get keyProp() { return this.props.userId }, 
-  behaviorFlags: 7,
+  behaviorFlags: 0,
   props: {
     userId: {
       name: "userId",

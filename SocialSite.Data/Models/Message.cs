@@ -8,6 +8,10 @@ using IntelliTect.Coalesce.DataAnnotations;
 
 namespace SocialSite.Data.Models
 {
+    [Read(SecurityPermissionLevels.AllowAll)]
+    [Edit(SecurityPermissionLevels.DenyAll)]
+    [Create(SecurityPermissionLevels.DenyAll)]
+    [Delete(SecurityPermissionLevels.DenyAll)]
     public class Message
     {
         [Key]

@@ -7,6 +7,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace SocialSite.Data.Models
 {
+    [Read(SecurityPermissionLevels.DenyAll)]
+    [Edit(SecurityPermissionLevels.DenyAll)]
+    [Create(SecurityPermissionLevels.DenyAll)]
+    [Delete(SecurityPermissionLevels.DenyAll)]
     public class User
     {
         public int UserId { get; set; }

@@ -32,7 +32,7 @@ namespace SocialSite.Web.Api
         }
 
         [HttpGet("get/{id}")]
-        [Authorize]
+        [AllowAnonymous]
         public virtual Task<ItemResult<MessageDtoGen>> Get(
             int id,
             DataSourceParameters parameters,
@@ -40,34 +40,17 @@ namespace SocialSite.Web.Api
             => GetImplementation(id, parameters, dataSource);
 
         [HttpGet("list")]
-        [Authorize]
+        [AllowAnonymous]
         public virtual Task<ListResult<MessageDtoGen>> List(
             ListParameters parameters,
             IDataSource<SocialSite.Data.Models.Message> dataSource)
             => ListImplementation(parameters, dataSource);
 
         [HttpGet("count")]
-        [Authorize]
+        [AllowAnonymous]
         public virtual Task<ItemResult<int>> Count(
             FilterParameters parameters,
             IDataSource<SocialSite.Data.Models.Message> dataSource)
             => CountImplementation(parameters, dataSource);
-
-        [HttpPost("save")]
-        [Authorize]
-        public virtual Task<ItemResult<MessageDtoGen>> Save(
-            MessageDtoGen dto,
-            [FromQuery] DataSourceParameters parameters,
-            IDataSource<SocialSite.Data.Models.Message> dataSource,
-            IBehaviors<SocialSite.Data.Models.Message> behaviors)
-            => SaveImplementation(dto, parameters, dataSource, behaviors);
-
-        [HttpPost("delete/{id}")]
-        [Authorize]
-        public virtual Task<ItemResult<MessageDtoGen>> Delete(
-            int id,
-            IBehaviors<SocialSite.Data.Models.Message> behaviors,
-            IDataSource<SocialSite.Data.Models.Message> dataSource)
-            => DeleteImplementation(id, new DataSourceParameters(), dataSource, behaviors);
     }
 }

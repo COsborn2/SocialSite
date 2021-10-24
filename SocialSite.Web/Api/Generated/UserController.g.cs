@@ -31,45 +31,6 @@ namespace SocialSite.Web.Api
             GeneratedForClassViewModel = ReflectionRepository.Global.GetClassViewModel<SocialSite.Data.Models.User>();
         }
 
-        [HttpGet("get/{id}")]
-        [Authorize]
-        public virtual Task<ItemResult<UserDtoGen>> Get(
-            int id,
-            DataSourceParameters parameters,
-            IDataSource<SocialSite.Data.Models.User> dataSource)
-            => GetImplementation(id, parameters, dataSource);
-
-        [HttpGet("list")]
-        [Authorize]
-        public virtual Task<ListResult<UserDtoGen>> List(
-            ListParameters parameters,
-            IDataSource<SocialSite.Data.Models.User> dataSource)
-            => ListImplementation(parameters, dataSource);
-
-        [HttpGet("count")]
-        [Authorize]
-        public virtual Task<ItemResult<int>> Count(
-            FilterParameters parameters,
-            IDataSource<SocialSite.Data.Models.User> dataSource)
-            => CountImplementation(parameters, dataSource);
-
-        [HttpPost("save")]
-        [Authorize]
-        public virtual Task<ItemResult<UserDtoGen>> Save(
-            UserDtoGen dto,
-            [FromQuery] DataSourceParameters parameters,
-            IDataSource<SocialSite.Data.Models.User> dataSource,
-            IBehaviors<SocialSite.Data.Models.User> behaviors)
-            => SaveImplementation(dto, parameters, dataSource, behaviors);
-
-        [HttpPost("delete/{id}")]
-        [Authorize]
-        public virtual Task<ItemResult<UserDtoGen>> Delete(
-            int id,
-            IBehaviors<SocialSite.Data.Models.User> behaviors,
-            IDataSource<SocialSite.Data.Models.User> dataSource)
-            => DeleteImplementation(id, new DataSourceParameters(), dataSource, behaviors);
-
         // Methods from data class exposed through API Controller.
 
         /// <summary>
