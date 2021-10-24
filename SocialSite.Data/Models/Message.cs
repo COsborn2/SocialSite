@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -75,15 +74,25 @@ namespace SocialSite.Data.Models
             {
                 if (!string.IsNullOrWhiteSpace(ActiveChips))
                 {
-                    var activeChipsSeparated = ActiveChips.Split('*');
-                    query = query.Where(x =>
-                        activeChipsSeparated.Any(xi => x.Text.ToUpperInvariant().Contains(xi)));
+                    var activeChipsSeparated = ActiveChips
+                        .Split('*')
+                        .Select(x => x.ToUpper())
+                        .ToArray();
+
+                    foreach (var chip in activeChipsSeparated)
+                    {
+                        query = query.Where(x => x.Text.ToUpper().Contains(chip));
+                    }
+                    // OR operation
+                    //query = query
+                    //    .Search(x => x.Text.ToUpper())
+                    //    .Containing(activeChipsSeparated);
                 }
 
                 if (!string.IsNullOrWhiteSpace(parameters.Search))
                 {
                     query = query.Where(x =>
-                        x.Text.ToUpperInvariant().Contains(parameters.Search.ToUpperInvariant()));
+                        x.Text.ToUpper().Contains(parameters.Search.ToUpper()));
                 }
 
                 return query;

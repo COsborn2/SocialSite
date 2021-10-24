@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using IntelliTect.Coalesce;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using SocialSite.Data.Models;
 
 namespace SocialSite.Data
@@ -47,6 +48,14 @@ namespace SocialSite.Data
             {
                 // this exception is expected when using an InMemory database
             }
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            // Disable client side evaluation
+            optionsBuilder.ConfigureWarnings(warnings =>
+                warnings.Throw(RelationalEventId.QueryClientEvaluationWarning));
+            base.OnConfiguring(optionsBuilder);
         }
     }
 }
