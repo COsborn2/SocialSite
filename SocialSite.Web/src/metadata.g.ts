@@ -76,6 +76,12 @@ export const Message = domain.types.Message = {
       displayName: "Message Default Data Source",
       isDefault: true,
       props: {
+        activeChips: {
+          name: "activeChips",
+          displayName: "Active Chips",
+          type: "string",
+          role: "value",
+        },
       },
     },
   },

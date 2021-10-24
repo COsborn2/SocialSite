@@ -61,13 +61,11 @@ namespace SocialSite.Data.Models
         [InternalUse]
         public string MediaUrls { get; set; }
 
-        [InternalUse]
-        public User User { get; set; }
-
-        [DefaultDataSource]
+        [DefaultDataSource, Coalesce]
         public class MessageDefaultDataSource : StandardDataSource<Message, AppDbContext>
         {
-            public List<string> Chips { get; set; }
+            [Coalesce]
+            public string ActiveChips { get; set; }
 
             public MessageDefaultDataSource(CrudContext<AppDbContext> context) : base(context)
             {
@@ -75,9 +73,20 @@ namespace SocialSite.Data.Models
 
             public override IQueryable<Message> ApplyListFiltering(IQueryable<Message> query, IFilterParameters parameters)
             {
-                if (string.IsNullOrWhiteSpace(parameters.Search)) return Db.Messages;
+                if (!string.IsNullOrWhiteSpace(ActiveChips))
+                {
+                    var activeChipsSeparated = ActiveChips.Split('*');
+                    query = query.Where(x =>
+                        activeChipsSeparated.Any(xi => x.Text.ToUpperInvariant().Contains(xi)));
+                }
 
-                return Db.Messages.Where(x => x.Text.ToUpperInvariant().Contains(parameters.Search.ToUpperInvariant()));
+                if (!string.IsNullOrWhiteSpace(parameters.Search))
+                {
+                    query = query.Where(x =>
+                        x.Text.ToUpperInvariant().Contains(parameters.Search.ToUpperInvariant()));
+                }
+
+                return query;
             }
         }
     }

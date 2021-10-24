@@ -20,6 +20,7 @@ namespace SocialSite.Data.Models
         public string ProfilePictureLink { get; set; }
 
         [Coalesce]
+        [Execute(SecurityPermissionLevels.AllowAll)]
         public static async Task<ICollection<User>> GetUsersOnPage(
             [Inject] AppDbContext db,
             params string[] screenNames)

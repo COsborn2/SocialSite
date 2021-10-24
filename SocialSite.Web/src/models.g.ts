@@ -33,6 +33,7 @@ export namespace Message {
     
     export class MessageDefaultDataSource implements DataSource<typeof metadata.Message.dataSources.messageDefaultDataSource> {
       readonly $metadata = metadata.Message.dataSources.messageDefaultDataSource
+      activeChips: string | null = null
     }
   }
 }

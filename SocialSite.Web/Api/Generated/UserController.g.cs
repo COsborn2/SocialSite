@@ -37,7 +37,7 @@ namespace SocialSite.Web.Api
         /// Method: GetUsersOnPage
         /// </summary>
         [HttpPost("GetUsersOnPage")]
-        [Authorize]
+        [AllowAnonymous]
         public virtual async Task<ItemResult<ICollection<UserDtoGen>>> GetUsersOnPage([FromServices] SocialSite.Data.AppDbContext db, ICollection<string> screenNames)
         {
             IncludeTree includeTree = null;
