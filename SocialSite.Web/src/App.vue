@@ -11,21 +11,24 @@
         </v-text-field>
 
         <div style="display: flex; justify-content: center">
-          <v-chip style="margin: 5px 5px" close v-for="searchTerm in unselectedChips" @click="addChip(searchTerm)">{{ searchTerm }}</v-chip>
+          <v-chip style="margin: 5px 5px" v-for="searchTerm in unselectedChips" @click="addChip(searchTerm)">{{ searchTerm }}</v-chip>
         </div>
       </v-container>
       <v-container style="display: flex; flex-wrap: wrap; justify-content: center">
-        <div v-for="message in messages.$items" style="margin: 10px 10px" v-if="!contentLoading">
-          <MessageCard
-                       :id="message.originalId" :text="message.text" :date="getDateFormat(message.createdAt)"
-                       :likes="message.favorites" :shares="message.shares" :user-name="message.screenName"
-                       :profile-picture-link="getProfilePicture(message.screenName)"
-                       style="min-height: 0; overflow: hidden"
-          />
+        <div style="width: 100%; display: flex; justify-content: center;">
+          <div style="width: 60%; display: flex; justify-content: center">
+            <v-pagination style="max-width: 60%" v-model="messages.$page" class="my-4" :length="messages.$pageCount" />
+          </div>
         </div>
-        <div style="margin: 10px 10px" v-for="cur in getArrayOfSize(30)" v-else>
-          <v-skeleton-loader style="width: 400px" type="table-heading, article, list-item-avatar" />
-        </div>
+        <MessageCard
+            v-if="!contentLoading"
+            v-for="message in messages.$items"
+            :id="message.originalId" :text="message.text" :date="getDateFormat(message.createdAt)"
+            :likes="message.favorites" :shares="message.shares" :user-name="message.screenName"
+            :profile-picture-link="getProfilePicture(message.screenName)"
+            style="min-height: 0; overflow: hidden; margin: 10px 10px"
+        />
+        <v-skeleton-loader v-else style="overflow: hidden; margin: 10px 10px; min-width: 200px" type="table-heading, article, list-item-avatar" />
 
         <div style="width: 100%; display: flex; justify-content: center; margin-bottom: 100px">
           <div style="width: 60%; display: flex; justify-content: center">
@@ -53,21 +56,21 @@ export default class App extends Vue {
   activeChips: string[] = [];
   chipSearchTerms: string[] = ['TESLA', 'Elon', 'NHTSA'];
   dataSource = new MessageDefaultDataSource();
-  
+
   messages: MessageListViewModel = new MessageListViewModel();
   users: UserListViewModel = new UserListViewModel();
-  
+
   get unselectedChips(): string[] {
     return this.chipSearchTerms.filter(x => this.activeChips.indexOf(x.toLocaleUpperCase().trim()) === -1);
   }
-  
+
   chipClosed(value: string) {
     let index = this.activeChips.indexOf(value.toLocaleUpperCase().trim());
     if (index < 0) return;
-    
+
     this.activeChips.splice(index, 1);
   }
-  
+
   addChip(value: string) {
     this.activeChips.push(value.toLocaleUpperCase().trim());
   }
@@ -89,7 +92,7 @@ export default class App extends Vue {
   get contentLoading(): boolean {
     return this.users.getUsersOnPage.isLoading || this.messages.$load.isLoading;
   }
-  
+
   get activeChipsString(): string {
     return this.activeChips.join('*');
   }
