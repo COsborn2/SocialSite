@@ -1,22 +1,21 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
-using SocialSite.Data.Models;
 using IntelliTect.Coalesce;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using SocialSite.Data.Models;
 
 namespace SocialSite.Data
 {
     [Coalesce]
     public class AppDbContext : DbContext
     {
-        public DbSet<ApplicationUser> ApplicationUsers { get; set; }
-
         public AppDbContext()
         {
         }
+
+        public DbSet<Message> Messages { get; set; }
+        public DbSet<User> Users { get; set; }
 
         public AppDbContext(DbContextOptions options) : base(options)
         {
@@ -41,7 +40,7 @@ namespace SocialSite.Data
             try
             {
                 this.Database.Migrate();
-                
+
                 // TODO: Or, use Database.EnsureCreated() instead:
                 // this.Database.EnsureCreated();
             }
@@ -49,6 +48,14 @@ namespace SocialSite.Data
             {
                 // this exception is expected when using an InMemory database
             }
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            // Disable client side evaluation
+            optionsBuilder.ConfigureWarnings(warnings =>
+                warnings.Throw(RelationalEventId.QueryClientEvaluationWarning));
+            base.OnConfiguring(optionsBuilder);
         }
     }
 }

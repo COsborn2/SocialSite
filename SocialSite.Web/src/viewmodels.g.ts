@@ -3,31 +3,71 @@ import * as $models from './models.g'
 import * as $apiClients from './api-clients.g'
 import { ViewModel, ListViewModel, ServiceViewModel, DeepPartial, defineProps } from 'coalesce-vue/lib/viewmodel'
 
-export interface ApplicationUserViewModel extends $models.ApplicationUser {
-  applicationUserId: number | null;
-  name: string | null;
+export interface MessageViewModel extends $models.Message {
+  messageId: number | null;
+  originalId: string | null;
+  text: string | null;
+  screenName: string | null;
+  utc: Date | null;
+  createdAt: Date | null;
+  favorites: number | null;
+  shares: number | null;
 }
-export class ApplicationUserViewModel extends ViewModel<$models.ApplicationUser, $apiClients.ApplicationUserApiClient, number> implements $models.ApplicationUser  {
+export class MessageViewModel extends ViewModel<$models.Message, $apiClients.MessageApiClient, number> implements $models.Message  {
   
-  constructor(initialData?: DeepPartial<$models.ApplicationUser> | null) {
-    super($metadata.ApplicationUser, new $apiClients.ApplicationUserApiClient(), initialData)
+  constructor(initialData?: DeepPartial<$models.Message> | null) {
+    super($metadata.Message, new $apiClients.MessageApiClient(), initialData)
   }
 }
-defineProps(ApplicationUserViewModel, $metadata.ApplicationUser)
+defineProps(MessageViewModel, $metadata.Message)
 
-export class ApplicationUserListViewModel extends ListViewModel<$models.ApplicationUser, $apiClients.ApplicationUserApiClient, ApplicationUserViewModel> {
+export class MessageListViewModel extends ListViewModel<$models.Message, $apiClients.MessageApiClient, MessageViewModel> {
   
   constructor() {
-    super($metadata.ApplicationUser, new $apiClients.ApplicationUserApiClient())
+    super($metadata.Message, new $apiClients.MessageApiClient())
+  }
+}
+
+
+export interface UserViewModel extends $models.User {
+  userId: number | null;
+  screenName: string | null;
+  profilePictureLink: string | null;
+}
+export class UserViewModel extends ViewModel<$models.User, $apiClients.UserApiClient, number> implements $models.User  {
+  
+  constructor(initialData?: DeepPartial<$models.User> | null) {
+    super($metadata.User, new $apiClients.UserApiClient(), initialData)
+  }
+}
+defineProps(UserViewModel, $metadata.User)
+
+export class UserListViewModel extends ListViewModel<$models.User, $apiClients.UserApiClient, UserViewModel> {
+  
+  public get getUsersOnPage() {
+    const getUsersOnPage = this.$apiClient.$makeCaller(
+      this.$metadata.methods.getUsersOnPage,
+      (c, screenNames: string[] | null) => c.getUsersOnPage(screenNames),
+      () => ({screenNames: null as string[] | null, }),
+      (c, args) => c.getUsersOnPage(args.screenNames))
+    
+    Object.defineProperty(this, 'getUsersOnPage', {value: getUsersOnPage});
+    return getUsersOnPage
+  }
+  
+  constructor() {
+    super($metadata.User, new $apiClients.UserApiClient())
   }
 }
 
 
 const viewModelTypeLookup = ViewModel.typeLookup = {
-  ApplicationUser: ApplicationUserViewModel,
+  Message: MessageViewModel,
+  User: UserViewModel,
 }
 const listViewModelTypeLookup = ListViewModel.typeLookup = {
-  ApplicationUser: ApplicationUserListViewModel,
+  Message: MessageListViewModel,
+  User: UserListViewModel,
 }
 const serviceViewModelTypeLookup = ServiceViewModel.typeLookup = {
 }

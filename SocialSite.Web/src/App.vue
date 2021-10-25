@@ -1,102 +1,131 @@
 <template>
   <v-app id="vue-app">
-    <v-navigation-drawer v-model="drawer" app clipped>
-      <v-list>
-        <v-list-item link to="/">
-          <v-list-item-action>
-            <v-icon>fas fa-home</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Home</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-
-        <v-list-item link to="/coalesce-example">
-          <v-list-item-action>
-            <v-icon>fas fa-palette</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Coalesce Example</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
-
-    <v-app-bar app color="primary" dark dense clipped-left>
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
-      <v-toolbar-title>
-        <router-link to="/" class="white--text" style="text-decoration: none">
-          Coalesce Vue Template
-        </router-link>
-      </v-toolbar-title>
-    </v-app-bar>
-
     <v-main>
-      <transition
-        name="router-transition"
-        mode="out-in"
-        appear
-        @enter="routerViewOnEnter"
-      >
-        <!-- https://stackoverflow.com/questions/52847979/what-is-router-view-key-route-fullpath -->
-        <router-view ref="routerView" :key="$route.path" />
-      </transition>
+      <v-container style="max-width: 600px">
+        <v-text-field v-model="messages.$params.search" :loading="contentLoading">
+          <template v-slot:append style="margin: auto" v-if="activeChips.length > 0">
+            <div style="margin: auto">
+              <v-chip close v-for="term in activeChips" @click:close="chipClosed(term)">{{ term }}</v-chip>
+            </div>
+          </template>
+        </v-text-field>
+
+        <div style="display: flex; justify-content: center">
+          <v-chip style="margin: 5px 5px" close v-for="searchTerm in unselectedChips" @click="addChip(searchTerm)">{{ searchTerm }}</v-chip>
+        </div>
+      </v-container>
+      <v-container style="display: flex; flex-wrap: wrap; justify-content: center">
+        <div v-for="message in messages.$items" style="margin: 10px 10px" v-if="!contentLoading">
+          <MessageCard
+                       :id="message.originalId" :text="message.text" :date="getDateFormat(message.createdAt)"
+                       :likes="message.favorites" :shares="message.shares" :user-name="message.screenName"
+                       :profile-picture-link="getProfilePicture(message.screenName)"
+                       style="min-height: 0; overflow: hidden"
+          />
+        </div>
+        <div style="margin: 10px 10px" v-for="cur in getArrayOfSize(30)" v-else>
+          <v-skeleton-loader style="width: 400px" type="table-heading, article, list-item-avatar" />
+        </div>
+
+        <div style="width: 100%; display: flex; justify-content: center; margin-bottom: 100px">
+          <div style="width: 60%; display: flex; justify-content: center">
+            <v-pagination style="max-width: 60%" v-model="messages.$page" class="my-4" :length="messages.$pageCount" />
+          </div>
+        </div>
+      </v-container>
     </v-main>
   </v-app>
 </template>
 
 <script lang="ts">
+import * as moment from 'moment';
 import Vue from "vue";
-import { Component } from "vue-property-decorator";
+import {Component, Watch} from "vue-property-decorator";
+import MessageCard from "@/components/MessageCard.vue";
+import {MessageListViewModel, UserListViewModel} from "@/viewmodels.g";
+import {Message} from "@/models.g";
+import MessageDefaultDataSource = Message.DataSources.MessageDefaultDataSource;
 
 @Component({
-  components: {},
+  components: {MessageCard},
 })
 export default class App extends Vue {
-  drawer: boolean | null = null;
-  routeComponent: Vue | null = null;
-
-  get routeMeta() {
-    if (!this.$route || this.$route.name === null) return null;
-
-    return this.$route.meta;
+  activeChips: string[] = [];
+  chipSearchTerms: string[] = ['TESLA', 'Elon', 'NHTSA'];
+  dataSource = new MessageDefaultDataSource();
+  
+  messages: MessageListViewModel = new MessageListViewModel();
+  users: UserListViewModel = new UserListViewModel();
+  
+  get unselectedChips(): string[] {
+    return this.chipSearchTerms.filter(x => this.activeChips.indexOf(x.toLocaleUpperCase().trim()) === -1);
+  }
+  
+  chipClosed(value: string) {
+    let index = this.activeChips.indexOf(value.toLocaleUpperCase().trim());
+    if (index < 0) return;
+    
+    this.activeChips.splice(index, 1);
+  }
+  
+  addChip(value: string) {
+    this.activeChips.push(value.toLocaleUpperCase().trim());
   }
 
-  routerViewOnEnter() {
-    this.routeComponent = this.$refs.routerView as Vue;
+  @Watch('messages.$page')
+  @Watch('messages.$params.search')
+  @Watch('activeChipsString')
+  pageChanged() {
+    window.scrollTo({ top: 0, behavior: 'smooth'});
+    this.dataSource.activeChips = this.activeChipsString;
+    this.messages.$load().then(_ => {
+      let arr: string[] = this.messages.$items.filter(x => x?.screenName !== null)
+        .map(x => x.screenName)
+        .filter((value, index, array) => array.indexOf(value) === index) as string[];
+      this.users.getUsersOnPage(arr);
+    });
   }
 
-  created() {
-    const baseTitle = document.title;
-    this.$watch(
-      () => (this.routeComponent as any)?.pageTitle,
-      (n: string | null | undefined) => {
-        if (n) {
-          document.title = n + " - " + baseTitle;
-        } else {
-          document.title = baseTitle;
-        }
-      },
-      { immediate: true }
-    );
+  get contentLoading(): boolean {
+    return this.users.getUsersOnPage.isLoading || this.messages.$load.isLoading;
+  }
+  
+  get activeChipsString(): string {
+    return this.activeChips.join('*');
+  }
+
+  getArrayOfSize(len: number): number[] {
+    return Array.from(Array(len)).map((v, i) => i);
+  }
+
+  getProfilePicture(screenName: string): string {
+    if (!this.users.getUsersOnPage.hasResult || !this.users.getUsersOnPage?.result) return '';
+    return this.users.getUsersOnPage.result.find(x => x.screenName === screenName)?.profilePictureLink ?? '';
+  }
+
+  getDateFormat(date: Date): string {
+    return (moment(date)).format('lll') + ' ' + date.toLocaleDateString('en', {timeZoneName: 'short'}).split(' ').pop();
+  }
+
+  get getUsersOnPage() {
+    return this.users.getUsersOnPage;
+  }
+
+  mounted() {
+    this.users.getUsersOnPage.setConcurrency('cancel');
+
+    this.dataSource.activeChips = this.activeChipsString;
+    this.messages.$dataSource = this.dataSource;
+    this.messages.$load.setConcurrency('cancel');
+    this.messages.$pageSize = 30;
+
+    this.pageChanged();
   }
 }
 </script>
 
 <style lang="scss">
-.router-transition-enter-active,
-.router-transition-leave-active {
-  // transition: 0.2s cubic-bezier(0.25, 0.8, 0.5, 1);
-  transition: 0.1s ease-out;
-}
-
-.router-transition-move {
-  transition: transform 0.4s;
-}
-
-.router-transition-enter,
-.router-transition-leave-to {
-  opacity: 0;
-  // transform: translateY(5px);
+.v-input__append-inner {
+  margin: auto !important;
 }
 </style>

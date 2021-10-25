@@ -6,30 +6,150 @@ import {
 
 
 const domain: Domain = { enums: {}, types: {}, services: {} }
-export const ApplicationUser = domain.types.ApplicationUser = {
-  name: "ApplicationUser",
-  displayName: "Application User",
-  get displayProp() { return this.props.name }, 
+export const Message = domain.types.Message = {
+  name: "Message",
+  displayName: "Message",
+  get displayProp() { return this.props.messageId }, 
   type: "model",
-  controllerRoute: "ApplicationUser",
-  get keyProp() { return this.props.applicationUserId }, 
-  behaviorFlags: 7,
+  controllerRoute: "Message",
+  get keyProp() { return this.props.messageId }, 
+  behaviorFlags: 0,
   props: {
-    applicationUserId: {
-      name: "applicationUserId",
-      displayName: "Application User Id",
+    messageId: {
+      name: "messageId",
+      displayName: "Message Id",
       type: "number",
       role: "primaryKey",
       hidden: 3,
     },
-    name: {
-      name: "name",
-      displayName: "Name",
+    originalId: {
+      name: "originalId",
+      displayName: "Original Id",
+      type: "string",
+      role: "value",
+    },
+    text: {
+      name: "text",
+      displayName: "Text",
+      type: "string",
+      role: "value",
+    },
+    screenName: {
+      name: "screenName",
+      displayName: "Screen Name",
+      type: "string",
+      role: "value",
+    },
+    utc: {
+      name: "utc",
+      displayName: "Utc",
+      dateKind: "datetime",
+      type: "date",
+      role: "value",
+    },
+    createdAt: {
+      name: "createdAt",
+      displayName: "Created At",
+      dateKind: "datetime",
+      type: "date",
+      role: "value",
+    },
+    favorites: {
+      name: "favorites",
+      displayName: "Favorites",
+      type: "number",
+      role: "value",
+    },
+    shares: {
+      name: "shares",
+      displayName: "Shares",
+      type: "number",
+      role: "value",
+    },
+  },
+  methods: {
+  },
+  dataSources: {
+    messageDefaultDataSource: {
+      type: "dataSource",
+      name: "MessageDefaultDataSource",
+      displayName: "Message Default Data Source",
+      isDefault: true,
+      props: {
+        activeChips: {
+          name: "activeChips",
+          displayName: "Active Chips",
+          type: "string",
+          role: "value",
+        },
+      },
+    },
+  },
+}
+export const User = domain.types.User = {
+  name: "User",
+  displayName: "User",
+  get displayProp() { return this.props.userId }, 
+  type: "model",
+  controllerRoute: "User",
+  get keyProp() { return this.props.userId }, 
+  behaviorFlags: 0,
+  props: {
+    userId: {
+      name: "userId",
+      displayName: "User Id",
+      type: "number",
+      role: "primaryKey",
+      hidden: 3,
+    },
+    screenName: {
+      name: "screenName",
+      displayName: "Screen Name",
+      type: "string",
+      role: "value",
+    },
+    profilePictureLink: {
+      name: "profilePictureLink",
+      displayName: "Profile Picture Link",
       type: "string",
       role: "value",
     },
   },
   methods: {
+    getUsersOnPage: {
+      name: "getUsersOnPage",
+      displayName: "Get Users On Page",
+      transportType: "item",
+      httpMethod: "POST",
+      isStatic: true,
+      params: {
+        screenNames: {
+          name: "screenNames",
+          displayName: "Screen Names",
+          type: "collection",
+          itemType: {
+            name: "$collectionItem",
+            displayName: "",
+            role: "value",
+            type: "string",
+          },
+          role: "value",
+        },
+      },
+      return: {
+        name: "$return",
+        displayName: "Result",
+        type: "collection",
+        itemType: {
+          name: "$collectionItem",
+          displayName: "",
+          role: "value",
+          type: "model",
+          get typeDef() { return (domain.types.User as ModelType) },
+        },
+        role: "value",
+      },
+    },
   },
   dataSources: {
   },
@@ -39,7 +159,8 @@ interface AppDomain extends Domain {
   enums: {
   }
   types: {
-    ApplicationUser: typeof ApplicationUser
+    Message: typeof Message
+    User: typeof User
   }
   services: {
   }

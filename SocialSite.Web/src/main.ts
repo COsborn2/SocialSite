@@ -1,6 +1,5 @@
 import Vue from "vue";
 import App from "./App.vue";
-import router from "./router";
 
 // Import global CSS and Fonts:
 import "typeface-roboto";
@@ -56,7 +55,6 @@ Vue.use(CoalesceVuetify, {
 Vue.config.productionTip = false;
 
 new Vue({
-  router,
   vuetify,
   render: (h) => h(App),
 }).$mount("#app");
