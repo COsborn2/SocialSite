@@ -5,7 +5,7 @@ name: Deploy WebApp
 
 on:
   workflow_run:
-    workflows: ["Build"]
+    workflows: ["Build WebApp"]
     branches: [main]
     types:
       - completed
