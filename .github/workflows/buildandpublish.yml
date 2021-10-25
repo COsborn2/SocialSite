@@ -34,7 +34,7 @@ jobs:
           cache-dependency-path: 'SocialSite.Web/package-lock.json'
 
       - name: NPM Ci
-        run: npm ci --production
+        run: npm ci
         working-directory: 'SocialSite.Web'
 
       - name: Build Vue
