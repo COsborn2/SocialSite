@@ -15,8 +15,8 @@
         </div>
       </v-container>
       <v-container style="display: flex; flex-wrap: wrap; justify-content: center">
-        <div style="width: 100%; display: flex; justify-content: center;">
-          <div style="width: 60%; display: flex; justify-content: center">
+        <div style="width: 100%; display: flex; justify-content: center">
+          <div style="width: 100%; display: flex; justify-content: center; max-width: 600px">
             <v-pagination style="max-width: 60%" v-model="messages.$page" class="my-4" :length="messages.$pageCount" />
           </div>
         </div>
@@ -30,8 +30,8 @@
         />
         <v-skeleton-loader v-else style="overflow: hidden; margin: 10px 10px; min-width: 200px" type="table-heading, article, list-item-avatar" />
 
-        <div style="width: 100%; display: flex; justify-content: center; margin-bottom: 100px">
-          <div style="width: 60%; display: flex; justify-content: center">
+        <div style="width: 100%; display: flex; justify-content: center">
+          <div style="width: 100%; display: flex; justify-content: center; max-width: 600px">
             <v-pagination style="max-width: 60%" v-model="messages.$page" class="my-4" :length="messages.$pageCount" />
           </div>
         </div>
@@ -97,10 +97,6 @@ export default class App extends Vue {
     return this.activeChips.join('*');
   }
 
-  getArrayOfSize(len: number): number[] {
-    return Array.from(Array(len)).map((v, i) => i);
-  }
-
   getProfilePicture(screenName: string): string {
     if (!this.users.getUsersOnPage.hasResult || !this.users.getUsersOnPage?.result) return '';
     return this.users.getUsersOnPage.result.find(x => x.screenName === screenName)?.profilePictureLink ?? '';
@@ -120,7 +116,7 @@ export default class App extends Vue {
     this.dataSource.activeChips = this.activeChipsString;
     this.messages.$dataSource = this.dataSource;
     this.messages.$load.setConcurrency('cancel');
-    this.messages.$pageSize = 30;
+    this.messages.$pageSize = 10;
 
     this.pageChanged();
   }
