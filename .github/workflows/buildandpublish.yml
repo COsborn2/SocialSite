@@ -55,6 +55,7 @@ jobs:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
+    steps:
       - name: Deploy to Azure Web App
         if: ${{ github.event_name != 'pull_request' && success() }}
         id: deploy-to-webapp
