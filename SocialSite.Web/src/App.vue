@@ -20,15 +20,16 @@
             <v-pagination style="max-width: 60%" v-model="messages.$page" class="my-4" :length="messages.$pageCount" />
           </div>
         </div>
-        <MessageCard
-            v-if="!contentLoading"
-            v-for="message in messages.$items"
-            :id="message.originalId" :text="message.text" :date="getDateFormat(message.createdAt)"
-            :likes="message.favorites" :shares="message.shares" :user-name="message.screenName"
-            :profile-picture-link="getProfilePicture(message.screenName)"
-            style="min-height: 0; overflow: hidden; margin: 10px 10px"
-        />
-        <v-skeleton-loader v-else style="overflow: hidden; margin: 10px 10px; min-width: 200px" type="table-heading, article, list-item-avatar" />
+        <div v-for="message in messages.$items" style="margin: 10px 10px">
+          <MessageCard
+              v-if="!contentLoading"
+              :id="message.originalId" :text="message.text" :date="getDateFormat(message.createdAt)"
+              :likes="message.favorites" :shares="message.shares" :user-name="message.screenName"
+              :profile-picture-link="getProfilePicture(message.screenName)"
+              style="min-height: 0; overflow: hidden; margin: 10px 10px"
+          />
+          <v-skeleton-loader v-else style="overflow: hidden; margin: 10px 10px; min-width: 200px" type="table-heading, article, list-item-avatar" />
+        </div>
 
         <div style="width: 100%; display: flex; justify-content: center">
           <div style="width: 100%; display: flex; justify-content: center; max-width: 600px">
