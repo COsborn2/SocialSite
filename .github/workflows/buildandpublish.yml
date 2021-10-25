@@ -43,6 +43,13 @@ jobs:
 
       - name: dotnet publish
         run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp --no-restore
+        
+      - name: Upload artifact
+        if: ${{ github.event_name != 'pull_request' && success() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: .net-app
+          path: ${{env.DOTNET_ROOT}}/myapp
 
   deploy:
     runs-on: windows-latest
@@ -52,12 +59,6 @@ jobs:
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
-      - name: Upload artifact
-        if: ${{ github.event_name != 'pull_request' && success() }}
-        uses: actions/upload-artifact@v2
-        with:
-          name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
       - name: Deploy to Azure Web App
         if: ${{ github.event_name != 'pull_request' && success() }}
         id: deploy-to-webapp
@@ -66,4 +67,4 @@ jobs:
           app-name: 'TweetArchive'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_1DE9446360C245C680CBAEC853CA8248 }}
-          package: ${{env.DOTNET_ROOT}}/myapp
+          package: .
