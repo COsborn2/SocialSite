@@ -12,7 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Include=".\Source_File.csv">
+        <None Include=".\*.csv">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Include="*.json">
