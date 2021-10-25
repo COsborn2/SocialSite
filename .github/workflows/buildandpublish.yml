@@ -1,0 +1,75 @@
+name: Build WebApp
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '5.0.x'
+          include-prerelease: true
+
+      - name: Nuget Restore
+        run: dotnet restore --configfile NuGet.Config
+
+      - name: Build with dotnet
+        run: dotnet build --configuration Release --no-restore
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+          cache: 'npm'
+          cache-dependency-path: 'SocialSite.Web/package-lock.json'
+
+      - name: NPM Ci
+        run: npm ci
+        working-directory: 'SocialSite.Web'
+
+      - name: Build Vue
+        run: npm run build
+        working-directory: 'SocialSite.Web'
+
+      - name: dotnet publish
+        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp --no-restore
+        
+      - name: Upload artifact
+        if: ${{ github.event_name != 'pull_request' && success() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: .net-app
+          path: ${{env.DOTNET_ROOT}}/myapp
+
+  deploy:
+    runs-on: windows-latest
+    if: ${{ github.event_name != 'pull_request' && success() }}
+    needs: build
+    environment:
+      name: 'Production'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v2
+        with:
+          name: .net-app
+    
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'TweetArchive'
+          slot-name: 'Production'
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_1DE9446360C245C680CBAEC853CA8248 }}
+          package: .
