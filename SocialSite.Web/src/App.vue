@@ -15,12 +15,12 @@
         </div>
       </v-container>
       <v-container style="display: flex; flex-wrap: wrap; justify-content: center">
-        <div style="width: 100%; display: flex; justify-content: center">
+        <div style="width: 100%; display: flex; justify-content: center" v-if="messages.$items.length > 0">
           <div style="width: 100%; display: flex; justify-content: center; max-width: 600px">
             <v-pagination style="max-width: 60%" v-model="messages.$page" class="my-4" :length="messages.$pageCount" />
           </div>
         </div>
-        <div v-for="message in messages.$items" style="margin: 10px 10px">
+        <div v-for="message in messages.$items" style="margin: 10px 10px" v-if="messages.$items.length > 0">
           <MessageCard
               v-if="!contentLoading"
               :id="message.originalId" :text="message.text" :date="getDateFormat(message.createdAt)"
@@ -30,8 +30,11 @@
           />
           <v-skeleton-loader v-else style="overflow: hidden; margin: 10px 10px; min-width: 200px" type="table-heading, article, list-item-avatar" />
         </div>
+        <div v-if="messages.$items.length === 0">
+          <v-icon x-large>fas fa-spinner fa-spin</v-icon>
+        </div>
 
-        <div style="width: 100%; display: flex; justify-content: center">
+        <div style="width: 100%; display: flex; justify-content: center" v-if="messages.$items.length > 0">
           <div style="width: 100%; display: flex; justify-content: center; max-width: 600px">
             <v-pagination style="max-width: 60%" v-model="messages.$page" class="my-4" :length="messages.$pageCount" />
           </div>
