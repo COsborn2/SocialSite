@@ -53,14 +53,19 @@ jobs:
 
   deploy:
     runs-on: windows-latest
+    if: ${{ github.event_name != 'pull_request' && success() }}
     needs: build
     environment:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v2
+        with:
+          name: .net-app
+    
       - name: Deploy to Azure Web App
-        if: ${{ github.event_name != 'pull_request' && success() }}
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
