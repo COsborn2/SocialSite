@@ -30,8 +30,12 @@
           />
           <v-skeleton-loader v-else style="overflow: hidden; margin: 10px 10px; min-width: 200px" type="table-heading, article, list-item-avatar" />
         </div>
-        <div v-if="messages.$items.length === 0">
-          <v-icon x-large>fas fa-spinner fa-spin</v-icon>
+        <div v-if="messages.$items.length === 0 && !messages.$load.isLoading">
+          <h1 class="text-center">No items found</h1>
+          <span class="fa-stack fa-2x text-center" style="width: 100%">
+            <i class="fas fa-search fa-stack-2x"></i>
+            <i class="fas fa-slash fa-flip-vertical fa-stack-2x"></i>
+          </span>
         </div>
 
         <div style="width: 100%; display: flex; justify-content: center" v-if="messages.$items.length > 0">
