@@ -7,10 +7,11 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
@@ -45,7 +46,7 @@ jobs:
         run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp --no-restore
         
       - name: Upload artifact
-        if: ${{ github.event_name != 'pull_request' && success() }}
+        if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@v2
         with:
           name: .net-app
@@ -53,7 +54,10 @@ jobs:
 
   deploy:
     runs-on: windows-latest
-    if: ${{ github.event_name != 'pull_request' && success() }}
+    if: ${{ github.event_name != 'pull_request' }}
+    concurrency: 
+      group: ${{ github.ref }}
+      cancel-in-progress: true
     needs: build
     environment:
       name: 'Production'
@@ -66,7 +70,6 @@ jobs:
           name: .net-app
     
       - name: Deploy to Azure Web App
-        id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
           app-name: 'TweetArchive'
